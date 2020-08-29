@@ -108,7 +108,7 @@ pub trait BlockRngCore {
 /// [`next_u64`]: RngCore::next_u64
 /// [`fill_bytes`]: RngCore::fill_bytes
 /// [`try_fill_bytes`]: RngCore::try_fill_bytes
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 #[cfg_attr(feature = "serde1", derive(Serialize, Deserialize))]
 pub struct BlockRng<R: BlockRngCore + ?Sized> {
     results: R::Results,
@@ -165,7 +165,7 @@ where
         let mut index = self.index;
         index = 4 * ((index / 32) + ((index & 0b1_1111) != 0) as usize);
 
-        if index + 4 >= self.results.as_ref().len() {
+        if index + 4 > self.results.as_ref().len() {
             self.core.generate(&mut self.results);
             index = 0;
         }
@@ -180,7 +180,7 @@ where
         let mut index = self.index;
         index = 8 * ((index / 64) + ((index & 0b11_1111) != 0) as usize);
 
-        if index + 8 >= self.results.as_ref().len() {
+        if index + 8 > self.results.as_ref().len() {
             self.core.generate(&mut self.results);
             index = 0;
         }
