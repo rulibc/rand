@@ -418,6 +418,11 @@ impl<'a, R: RngCore + ?Sized> RngCore for &'a mut R {
 #[cfg(feature = "alloc")]
 impl<R: RngCore + ?Sized> RngCore for Box<R> {
     #[inline(always)]
+    fn next_bool(&mut self) -> bool {
+        (**self).next_bool()
+    }
+
+    #[inline(always)]
     fn next_u32(&mut self) -> u32 {
         (**self).next_u32()
     }
