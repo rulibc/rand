@@ -68,6 +68,11 @@ pub struct Hc128Rng(BlockRng<Hc128Core>);
 
 impl RngCore for Hc128Rng {
     #[inline]
+    fn next_bool(&mut self) -> bool {
+        self.0.next_bool()
+    }
+
+    #[inline]
     fn next_u32(&mut self) -> u32 {
         self.0.next_u32()
     }
@@ -106,7 +111,7 @@ impl CryptoRng for Hc128Rng {}
 
 impl PartialEq for Hc128Rng {
     fn eq(&self, rhs: &Self) -> bool {
-        self.0.core == rhs.0.core && self.0.index() == rhs.0.index()
+        self.0.eq(&rhs.0)
     }
 }
 impl Eq for Hc128Rng {}
@@ -125,9 +130,31 @@ impl fmt::Debug for Hc128Core {
     }
 }
 
+/// Type representing result of the [`Hc128Core`] iteration
+#[derive(Eq, PartialEq, Clone, Debug)]
+#[repr(align(4))]
+pub struct Results([u8; 64]);
+
+impl Default for Results {
+    fn default() -> Self {
+        Self([0u8; 64])
+    }
+}
+
+impl AsRef<[u8]> for Results {
+    fn as_ref(&self) -> &[u8] {
+        &self.0
+    }
+}
+
+impl AsMut<[u8]> for Results {
+    fn as_mut(&mut self) -> &mut [u8] {
+        &mut self.0
+    }
+}
+
 impl BlockRngCore for Hc128Core {
-    type Item = u32;
-    type Results = [u32; 16];
+    type Results = Results;
 
     fn generate(&mut self, results: &mut Self::Results) {
         assert!(self.counter1024 % 16 == 0);
@@ -142,42 +169,52 @@ impl BlockRngCore for Hc128Core {
         assert!(cc + 15 < 512);
         assert!(dd < 512);
 
+        macro_rules! step {
+            (
+                $f:ident, $n:expr,
+                $a:expr, $b:expr, $c:expr, $d:expr, $e:expr
+            ) => {
+                let v = self.$f($a,  $b,  $c, $d,  $e);
+                results.0[4*$n..4*($n+1)].copy_from_slice(&v.to_le_bytes());
+            };
+        }
+
         if self.counter1024 & 512 == 0 {
             // P block
-            results[0]  = self.step_p(cc+0,  cc+1,  ee+13, ee+6,  ee+4);
-            results[1]  = self.step_p(cc+1,  cc+2,  ee+14, ee+7,  ee+5);
-            results[2]  = self.step_p(cc+2,  cc+3,  ee+15, ee+8,  ee+6);
-            results[3]  = self.step_p(cc+3,  cc+4,  cc+0,  ee+9,  ee+7);
-            results[4]  = self.step_p(cc+4,  cc+5,  cc+1,  ee+10, ee+8);
-            results[5]  = self.step_p(cc+5,  cc+6,  cc+2,  ee+11, ee+9);
-            results[6]  = self.step_p(cc+6,  cc+7,  cc+3,  ee+12, ee+10);
-            results[7]  = self.step_p(cc+7,  cc+8,  cc+4,  ee+13, ee+11);
-            results[8]  = self.step_p(cc+8,  cc+9,  cc+5,  ee+14, ee+12);
-            results[9]  = self.step_p(cc+9,  cc+10, cc+6,  ee+15, ee+13);
-            results[10] = self.step_p(cc+10, cc+11, cc+7,  cc+0,  ee+14);
-            results[11] = self.step_p(cc+11, cc+12, cc+8,  cc+1,  ee+15);
-            results[12] = self.step_p(cc+12, cc+13, cc+9,  cc+2,  cc+0);
-            results[13] = self.step_p(cc+13, cc+14, cc+10, cc+3,  cc+1);
-            results[14] = self.step_p(cc+14, cc+15, cc+11, cc+4,  cc+2);
-            results[15] = self.step_p(cc+15, dd+0,  cc+12, cc+5,  cc+3);
+            step!(step_p, 0, cc+0,  cc+1,  ee+13, ee+6,  ee+4);
+            step!(step_p, 1, cc+1,  cc+2,  ee+14, ee+7,  ee+5);
+            step!(step_p, 2, cc+2,  cc+3,  ee+15, ee+8,  ee+6);
+            step!(step_p, 3, cc+3,  cc+4,  cc+0,  ee+9,  ee+7);
+            step!(step_p, 4, cc+4,  cc+5,  cc+1,  ee+10, ee+8);
+            step!(step_p, 5, cc+5,  cc+6,  cc+2,  ee+11, ee+9);
+            step!(step_p, 6, cc+6,  cc+7,  cc+3,  ee+12, ee+10);
+            step!(step_p, 7, cc+7,  cc+8,  cc+4,  ee+13, ee+11);
+            step!(step_p, 8, cc+8,  cc+9,  cc+5,  ee+14, ee+12);
+            step!(step_p, 9, cc+9,  cc+10, cc+6,  ee+15, ee+13);
+            step!(step_p, 10, cc+10, cc+11, cc+7,  cc+0,  ee+14);
+            step!(step_p, 11, cc+11, cc+12, cc+8,  cc+1,  ee+15);
+            step!(step_p, 12, cc+12, cc+13, cc+9,  cc+2,  cc+0);
+            step!(step_p, 13, cc+13, cc+14, cc+10, cc+3,  cc+1);
+            step!(step_p, 14, cc+14, cc+15, cc+11, cc+4,  cc+2);
+            step!(step_p, 15, cc+15, dd+0,  cc+12, cc+5,  cc+3);
         } else {
             // Q block
-            results[0]  = self.step_q(cc+0,  cc+1,  ee+13, ee+6,  ee+4);
-            results[1]  = self.step_q(cc+1,  cc+2,  ee+14, ee+7,  ee+5);
-            results[2]  = self.step_q(cc+2,  cc+3,  ee+15, ee+8,  ee+6);
-            results[3]  = self.step_q(cc+3,  cc+4,  cc+0,  ee+9,  ee+7);
-            results[4]  = self.step_q(cc+4,  cc+5,  cc+1,  ee+10, ee+8);
-            results[5]  = self.step_q(cc+5,  cc+6,  cc+2,  ee+11, ee+9);
-            results[6]  = self.step_q(cc+6,  cc+7,  cc+3,  ee+12, ee+10);
-            results[7]  = self.step_q(cc+7,  cc+8,  cc+4,  ee+13, ee+11);
-            results[8]  = self.step_q(cc+8,  cc+9,  cc+5,  ee+14, ee+12);
-            results[9]  = self.step_q(cc+9,  cc+10, cc+6,  ee+15, ee+13);
-            results[10] = self.step_q(cc+10, cc+11, cc+7,  cc+0,  ee+14);
-            results[11] = self.step_q(cc+11, cc+12, cc+8,  cc+1,  ee+15);
-            results[12] = self.step_q(cc+12, cc+13, cc+9,  cc+2,  cc+0);
-            results[13] = self.step_q(cc+13, cc+14, cc+10, cc+3,  cc+1);
-            results[14] = self.step_q(cc+14, cc+15, cc+11, cc+4,  cc+2);
-            results[15] = self.step_q(cc+15, dd+0,  cc+12, cc+5,  cc+3);
+            step!(step_q, 0, cc+0,  cc+1,  ee+13, ee+6,  ee+4);
+            step!(step_q, 1, cc+1,  cc+2,  ee+14, ee+7,  ee+5);
+            step!(step_q, 2, cc+2,  cc+3,  ee+15, ee+8,  ee+6);
+            step!(step_q, 3, cc+3,  cc+4,  cc+0,  ee+9,  ee+7);
+            step!(step_q, 4, cc+4,  cc+5,  cc+1,  ee+10, ee+8);
+            step!(step_q, 5, cc+5,  cc+6,  cc+2,  ee+11, ee+9);
+            step!(step_q, 6, cc+6,  cc+7,  cc+3,  ee+12, ee+10);
+            step!(step_q, 7, cc+7,  cc+8,  cc+4,  ee+13, ee+11);
+            step!(step_q, 8, cc+8,  cc+9,  cc+5,  ee+14, ee+12);
+            step!(step_q, 9, cc+9,  cc+10, cc+6,  ee+15, ee+13);
+            step!(step_q, 10, cc+10, cc+11, cc+7,  cc+0,  ee+14);
+            step!(step_q, 11, cc+11, cc+12, cc+8,  cc+1,  ee+15);
+            step!(step_q, 12, cc+12, cc+13, cc+9,  cc+2,  cc+0);
+            step!(step_q, 13, cc+13, cc+14, cc+10, cc+3,  cc+1);
+            step!(step_q, 14, cc+14, cc+15, cc+11, cc+4,  cc+2);
+            step!(step_q, 15, cc+15, dd+0,  cc+12, cc+5,  cc+3);
         }
         self.counter1024 = self.counter1024.wrapping_add(16);
     }
