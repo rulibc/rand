@@ -442,7 +442,7 @@ pub enum WeightedError {
 impl ::std::error::Error for WeightedError {}
 
 impl fmt::Display for WeightedError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             WeightedError::NoItem => write!(f, "No weights provided."),
             WeightedError::InvalidWeight => write!(f, "A weight is invalid."),
