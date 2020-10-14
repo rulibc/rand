@@ -58,7 +58,7 @@
 )]
 
 #[cfg(feature = "std")] extern crate std;
-#[cfg(feature = "alloc")] extern crate alloc;
+#[cfg(feature = "use_alloc")] extern crate alloc;
 
 #[allow(unused)]
 macro_rules! trace { ($($x:tt)*) => (

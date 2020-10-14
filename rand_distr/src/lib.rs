@@ -74,7 +74,7 @@
 //!   - [`InverseGaussian`] distribution
 //!   - [`NormalInverseGaussian`] distribution
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 extern crate alloc;
 
 #[cfg(feature = "std")]
@@ -87,7 +87,7 @@ pub use rand::distributions::{
 
 pub use self::binomial::{Binomial, Error as BinomialError};
 pub use self::cauchy::{Cauchy, Error as CauchyError};
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 pub use self::dirichlet::{Dirichlet, Error as DirichletError};
 pub use self::exponential::{Error as ExpError, Exp, Exp1};
 pub use self::gamma::{
@@ -106,10 +106,10 @@ pub use self::unit_circle::UnitCircle;
 pub use self::unit_disc::UnitDisc;
 pub use self::unit_sphere::UnitSphere;
 pub use self::weibull::{Error as WeibullError, Weibull};
-#[cfg(feature = "alloc")]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg(feature = "use_alloc")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "use_alloc")))]
 pub use rand::distributions::{WeightedError, WeightedIndex};
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 pub use weighted_alias::WeightedAliasIndex;
 
 pub use num_traits;
@@ -163,8 +163,8 @@ mod test {
     }
 }
 
-#[cfg(feature = "alloc")]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg(feature = "use_alloc")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "use_alloc")))]
 pub mod weighted_alias;
 
 mod binomial;

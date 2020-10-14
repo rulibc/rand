@@ -287,7 +287,7 @@ fn weibull_stability() {
     ]);
 }
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 #[test]
 fn dirichlet_stability() {
     let mut rng = get_rng(223);

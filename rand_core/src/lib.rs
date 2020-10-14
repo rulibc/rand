@@ -42,8 +42,8 @@ use core::convert::AsMut;
 use core::default::Default;
 
 #[cfg(feature = "std")] extern crate std;
-#[cfg(feature = "alloc")] extern crate alloc;
-#[cfg(feature = "alloc")] use alloc::boxed::Box;
+#[cfg(feature = "use_alloc")] extern crate alloc;
+#[cfg(feature = "use_alloc")] use alloc::boxed::Box;
 
 pub use error::Error;
 #[cfg(feature = "getrandom")] pub use os::OsRng;
@@ -402,7 +402,7 @@ impl<'a, R: RngCore + ?Sized> RngCore for &'a mut R {
 // Implement `RngCore` for boxed references to an `RngCore`.
 // Force inlining all functions, so that it is up to the `RngCore`
 // implementation and the optimizer to decide on inlining.
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 impl<R: RngCore + ?Sized> RngCore for Box<R> {
     #[inline(always)]
     fn next_u32(&mut self) -> u32 {
@@ -437,7 +437,7 @@ impl std::io::Read for dyn RngCore {
 impl<'a, R: CryptoRng + ?Sized> CryptoRng for &'a mut R {}
 
 // Implement `CryptoRng` for boxed references to an `CryptoRng`.
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 impl<R: CryptoRng + ?Sized> CryptoRng for Box<R> {}
 
 #[cfg(test)]

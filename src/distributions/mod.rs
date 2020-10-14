@@ -101,17 +101,17 @@ pub use self::float::{Open01, OpenClosed01};
 pub use self::other::Alphanumeric;
 #[doc(inline)] pub use self::uniform::Uniform;
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 pub use self::weighted_index::{WeightedError, WeightedIndex};
 
 mod bernoulli;
 pub mod uniform;
 
 #[deprecated(since = "0.8.0", note = "use rand::distributions::{WeightedIndex, WeightedError} instead")]
-#[cfg(feature = "alloc")]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg(feature = "use_alloc")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "use_alloc")))]
 pub mod weighted;
-#[cfg(feature = "alloc")] mod weighted_index;
+#[cfg(feature = "use_alloc")] mod weighted_index;
 
 #[cfg(feature = "serde1")]
 use serde::{Serialize, Deserialize};

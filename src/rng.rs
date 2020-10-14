@@ -422,7 +422,7 @@ mod test {
     use super::*;
     use crate::test::rng;
     use crate::rngs::mock::StepRng;
-    #[cfg(feature = "alloc")] use alloc::boxed::Box;
+    #[cfg(feature = "use_alloc")] use alloc::boxed::Box;
 
     #[test]
     fn test_fill_bytes_default() {
@@ -553,7 +553,7 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     fn test_rng_boxed_trait() {
         use crate::distributions::{Distribution, Standard};
         let rng = rng(110);

@@ -206,7 +206,7 @@ where Standard: Distribution<T>
 mod tests {
     use super::*;
     use crate::RngCore;
-    #[cfg(feature = "alloc")] use alloc::string::String;
+    #[cfg(feature = "use_alloc")] use alloc::string::String;
 
     #[test]
     fn test_misc() {
@@ -216,7 +216,7 @@ mod tests {
         rng.sample::<bool, _>(Standard);
     }
 
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     #[test]
     fn test_chars() {
         use core::iter;

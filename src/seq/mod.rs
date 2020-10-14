@@ -25,17 +25,17 @@
 //! small performance boost in some cases).
 
 
-#[cfg(feature = "alloc")]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg(feature = "use_alloc")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "use_alloc")))]
 pub mod index;
 
-#[cfg(feature = "alloc")] use core::ops::Index;
+#[cfg(feature = "use_alloc")] use core::ops::Index;
 
-#[cfg(feature = "alloc")] use alloc::vec::Vec;
+#[cfg(feature = "use_alloc")] use alloc::vec::Vec;
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 use crate::distributions::uniform::{SampleBorrow, SampleUniform};
-#[cfg(feature = "alloc")] use crate::distributions::WeightedError;
+#[cfg(feature = "use_alloc")] use crate::distributions::WeightedError;
 use crate::Rng;
 
 /// Extension trait on slices, providing random mutation and sampling methods.
@@ -110,8 +110,8 @@ pub trait SliceRandom {
     ///     *slot = *b;
     /// }
     /// ```
-    #[cfg(feature = "alloc")]
-    #[cfg_attr(doc_cfg, doc(cfg(feature = "alloc")))]
+    #[cfg(feature = "use_alloc")]
+    #[cfg_attr(doc_cfg, doc(cfg(feature = "use_alloc")))]
     fn choose_multiple<R>(&self, rng: &mut R, amount: usize) -> SliceChooseIter<Self, Self::Item>
     where R: Rng + ?Sized;
 
@@ -138,8 +138,8 @@ pub trait SliceRandom {
     /// [`choose`]: SliceRandom::choose
     /// [`choose_weighted_mut`]: SliceRandom::choose_weighted_mut
     /// [`distributions::weighted`]: crate::distributions::weighted
-    #[cfg(feature = "alloc")]
-    #[cfg_attr(doc_cfg, doc(cfg(feature = "alloc")))]
+    #[cfg(feature = "use_alloc")]
+    #[cfg_attr(doc_cfg, doc(cfg(feature = "use_alloc")))]
     fn choose_weighted<R, F, B, X>(
         &self, rng: &mut R, weight: F,
     ) -> Result<&Self::Item, WeightedError>
@@ -166,8 +166,8 @@ pub trait SliceRandom {
     /// [`choose_mut`]: SliceRandom::choose_mut
     /// [`choose_weighted`]: SliceRandom::choose_weighted
     /// [`distributions::weighted`]: crate::distributions::weighted
-    #[cfg(feature = "alloc")]
-    #[cfg_attr(doc_cfg, doc(cfg(feature = "alloc")))]
+    #[cfg(feature = "use_alloc")]
+    #[cfg_attr(doc_cfg, doc(cfg(feature = "use_alloc")))]
     fn choose_weighted_mut<R, F, B, X>(
         &mut self, rng: &mut R, weight: F,
     ) -> Result<&mut Self::Item, WeightedError>
@@ -212,7 +212,7 @@ pub trait SliceRandom {
     /// println!("{:?}", choices.choose_multiple_weighted(&mut rng, 2, |item| item.1).unwrap().collect::<Vec<_>>());
     /// ```
     /// [`choose_multiple`]: SliceRandom::choose_multiple
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     fn choose_multiple_weighted<R, F, X>(
         &self, rng: &mut R, amount: usize, weight: F,
     ) -> Result<SliceChooseIter<Self, Self::Item>, WeightedError>
@@ -399,8 +399,8 @@ pub trait IteratorRandom: Iterator + Sized {
     ///
     /// Complexity is `O(n)` where `n` is the length of the iterator.
     /// For slices, prefer [`SliceRandom::choose_multiple`].
-    #[cfg(feature = "alloc")]
-    #[cfg_attr(doc_cfg, doc(cfg(feature = "alloc")))]
+    #[cfg(feature = "use_alloc")]
+    #[cfg_attr(doc_cfg, doc(cfg(feature = "use_alloc")))]
     fn choose_multiple<R>(mut self, rng: &mut R, amount: usize) -> Vec<Self::Item>
     where R: Rng + ?Sized {
         let mut reservoir = Vec::with_capacity(amount);
@@ -449,7 +449,7 @@ impl<T> SliceRandom for [T] {
         }
     }
 
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     fn choose_multiple<R>(&self, rng: &mut R, amount: usize) -> SliceChooseIter<Self, Self::Item>
     where R: Rng + ?Sized {
         let amount = ::core::cmp::min(amount, self.len());
@@ -460,7 +460,7 @@ impl<T> SliceRandom for [T] {
         }
     }
 
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     fn choose_weighted<R, F, B, X>(
         &self, rng: &mut R, weight: F,
     ) -> Result<&Self::Item, WeightedError>
@@ -479,7 +479,7 @@ impl<T> SliceRandom for [T] {
         Ok(&self[distr.sample(rng)])
     }
 
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     fn choose_weighted_mut<R, F, B, X>(
         &mut self, rng: &mut R, weight: F,
     ) -> Result<&mut Self::Item, WeightedError>
@@ -498,7 +498,7 @@ impl<T> SliceRandom for [T] {
         Ok(&mut self[distr.sample(rng)])
     }
 
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     fn choose_multiple_weighted<R, F, X>(
         &self, rng: &mut R, amount: usize, weight: F,
     ) -> Result<SliceChooseIter<Self, Self::Item>, WeightedError>
@@ -557,8 +557,8 @@ impl<I> IteratorRandom for I where I: Iterator + Sized {}
 ///
 /// This struct is created by
 /// [`SliceRandom::choose_multiple`](trait.SliceRandom.html#tymethod.choose_multiple).
-#[cfg(feature = "alloc")]
-#[cfg_attr(doc_cfg, doc(cfg(feature = "alloc")))]
+#[cfg(feature = "use_alloc")]
+#[cfg_attr(doc_cfg, doc(cfg(feature = "use_alloc")))]
 #[derive(Debug)]
 pub struct SliceChooseIter<'a, S: ?Sized + 'a, T: 'a> {
     slice: &'a S,
@@ -566,7 +566,7 @@ pub struct SliceChooseIter<'a, S: ?Sized + 'a, T: 'a> {
     indices: index::IndexVecIntoIter,
 }
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 impl<'a, S: Index<usize, Output = T> + ?Sized + 'a, T: 'a> Iterator for SliceChooseIter<'a, S, T> {
     type Item = &'a T;
 
@@ -580,7 +580,7 @@ impl<'a, S: Index<usize, Output = T> + ?Sized + 'a, T: 'a> Iterator for SliceCho
     }
 }
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 impl<'a, S: Index<usize, Output = T> + ?Sized + 'a, T: 'a> ExactSizeIterator
     for SliceChooseIter<'a, S, T>
 {
@@ -606,8 +606,8 @@ fn gen_index<R: Rng + ?Sized>(rng: &mut R, ubound: usize) -> usize {
 #[cfg(test)]
 mod test {
     use super::*;
-    #[cfg(feature = "alloc")] use crate::Rng;
-    #[cfg(all(feature = "alloc", not(feature = "std")))] use alloc::vec::Vec;
+    #[cfg(feature = "use_alloc")] use crate::Rng;
+    #[cfg(all(feature = "use_alloc", not(feature = "std")))] use alloc::vec::Vec;
 
     #[test]
     fn test_slice_choose() {
@@ -650,7 +650,7 @@ mod test {
         assert_eq!(chars.choose(&mut r), Some(&'l'));
         assert_eq!(nums.choose_mut(&mut r), Some(&mut 10));
 
-        #[cfg(feature = "alloc")]
+        #[cfg(feature = "use_alloc")]
         assert_eq!(
             &chars
                 .choose_multiple(&mut r, 8)
@@ -659,9 +659,9 @@ mod test {
             &['d', 'm', 'b', 'n', 'c', 'k', 'h', 'e']
         );
 
-        #[cfg(feature = "alloc")]
+        #[cfg(feature = "use_alloc")]
         assert_eq!(chars.choose_weighted(&mut r, |_| 1), Ok(&'f'));
-        #[cfg(feature = "alloc")]
+        #[cfg(feature = "use_alloc")]
         assert_eq!(nums.choose_weighted_mut(&mut r, |_| 1), Ok(&mut 5));
 
         let mut r = crate::test::rng(414);
@@ -765,7 +765,7 @@ mod test {
 
         test_iter(r, 0..9);
         test_iter(r, [0, 1, 2, 3, 4, 5, 6, 7, 8].iter().cloned());
-        #[cfg(feature = "alloc")]
+        #[cfg(feature = "use_alloc")]
         test_iter(r, (0..9).collect::<Vec<_>>().into_iter());
         test_iter(r, UnhintedIterator { iter: 0..9 });
         test_iter(r, ChunkHintedIterator {
@@ -862,7 +862,7 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     fn test_sample_iter() {
         let min_val = 1;
         let max_val = 100;
@@ -883,7 +883,7 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     #[cfg_attr(miri, ignore)] // Miri is too slow
     fn test_weighted() {
         let mut r = crate::test::rng(406);
@@ -1013,7 +1013,7 @@ mod test {
         do_test(0..8, &[0, 1, 2, 3, 4, 5, 6, 7]);
         do_test(0..100, &[58, 78, 80, 92, 43, 8, 96, 7]);
 
-        #[cfg(feature = "alloc")]
+        #[cfg(feature = "use_alloc")]
         {
             fn do_test<I: Iterator<Item = u32>>(iter: I, v: &[u32]) {
                 let mut rng = crate::test::rng(412);
@@ -1027,7 +1027,7 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     fn test_multiple_weighted_edge_cases() {
         use super::*;
 
@@ -1107,7 +1107,7 @@ mod test {
     }
 
     #[test]
-    #[cfg(feature = "alloc")]
+    #[cfg(feature = "use_alloc")]
     fn test_multiple_weighted_distributions() {
         use super::*;
 

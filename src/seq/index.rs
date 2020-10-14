@@ -8,15 +8,15 @@
 
 //! Low-level API for sampling indices
 
-#[cfg(feature = "alloc")] use core::slice;
+#[cfg(feature = "use_alloc")] use core::slice;
 
-#[cfg(feature = "alloc")] use alloc::vec::{self, Vec};
+#[cfg(feature = "use_alloc")] use alloc::vec::{self, Vec};
 // BTreeMap is not as fast in tests, but better than nothing.
-#[cfg(all(feature = "alloc", not(feature = "std")))]
+#[cfg(all(feature = "use_alloc", not(feature = "std")))]
 use alloc::collections::BTreeSet;
 #[cfg(feature = "std")] use std::collections::HashSet;
 
-#[cfg(feature = "alloc")]
+#[cfg(feature = "use_alloc")]
 use crate::distributions::{uniform::SampleUniform, Distribution, Uniform, WeightedError};
 use crate::Rng;
 
@@ -375,7 +375,7 @@ where
 
     #[cfg(not(feature = "nightly"))]
     {
-        #[cfg(all(feature = "alloc", not(feature = "std")))]
+        #[cfg(all(feature = "use_alloc", not(feature = "std")))]
         use crate::alloc::collections::BinaryHeap;
         #[cfg(feature = "std")]
         use std::collections::BinaryHeap;
@@ -560,7 +560,7 @@ mod test {
         }
     }
 
-    #[cfg(feature = "alloc")] use alloc::vec;
+    #[cfg(feature = "use_alloc")] use alloc::vec;
 
     #[test]
     fn test_sample_boundaries() {
