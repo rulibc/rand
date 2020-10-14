@@ -58,6 +58,7 @@ members = [
 rand_core = { path = "rand_core", version = "0.5.1" }
 log = { version = "0.4.4", optional = true }
 serde = { version = "1.0.103", features = ["derive"], optional = true }
+libm = { version = "0.2.1", features = ["rustc-dep-of-std"] }
 
 [dependencies.packed_simd]
 # NOTE: so far no version works reliably due to dependence on unstable features

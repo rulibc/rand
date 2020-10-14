@@ -22,6 +22,7 @@ use crate::Rng;
 
 #[cfg(feature = "serde1")]
 use serde::{Serialize, Deserialize};
+use libm;
 
 /// A vector of indices.
 ///
@@ -352,7 +353,7 @@ where
                 return Err(WeightedError::InvalidWeight);
             }
 
-            let key = rng.gen::<f64>().powf(1.0 / weight);
+            let key = libm::pow(rng.gen::<f64>(), 1.0 / weight);
             candidates.push(Element { index, key });
 
             index += N::one();
@@ -390,7 +391,7 @@ where
                 return Err(WeightedError::InvalidWeight);
             }
 
-            let key = rng.gen::<f64>().powf(1.0 / weight);
+            let key = libm::pow(rng.gen::<f64>(), 1.0 / weight);
             candidates.push(Element { index, key });
 
             index += N::one();
