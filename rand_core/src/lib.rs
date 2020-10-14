@@ -42,7 +42,6 @@ use core::convert::AsMut;
 use core::default::Default;
 
 #[cfg(feature = "std")] extern crate std;
-#[cfg(feature = "use_alloc")] extern crate alloc;
 #[cfg(feature = "use_alloc")] use alloc::boxed::Box;
 
 pub use error::Error;
